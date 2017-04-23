@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>history API</title>
+	<style>
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+
+		aside {
+			background-color: #ccc;
+			width: 220px;
+			float: left;
+			height: 100%;
+		}
+
+		aside ul {
+			font-size: 20px;
+			line-height: 2;
+		}
+
+		aside ul li {
+			cursor: pointer;
+		}
+
+		article {
+			background-color: #fff;
+			margin-left: 220px;
+			padding: 20px;
+			overflow: scroll;
+			height: 100%;
+			font-size: 20px;
+		}
+	</style>
+</head>
+<body>
+	<aside>
+		<ul id="list"></ul>
+	</aside>
+	<article>
+		<p id="content"></p>
+	</article>
+	<script src="data.js"></script>
+	<script>
+		
+			var listElement = document.querySelector("#list");
+			for (var title in data) {
+				var liElement = document.createElement("li");
+				liElement.innerHTML = title;
+				liElement.setAttribute("data-title",title);
+				listElement.appendChild(liElement);
+			};
+
+			var liElements = document.querySelectorAll("#list>li");
+			var content = document.querySelector("#content");
+			for (var i = 0; i < liElements.length; i++) {
+				liElements[i].addEventListener("click",function () {
+					var title = this.dataset["title"];
+					content.innerHTML = data[title];
+					if (window.history && history.pushState) {
+						history.pushState(title,"title","?t="+title);
+					}else {
+						console.log("不支持");
+					}
+				});
+			};
+			// 当我们在伪造的访问历史中前进或后退时会执行一个popstate事件
+			window.addEventListener("popstate",function (e) {
+				content.innerHTML = data[e.state];
+			});
+			// window.location = "https://www.baidu.com";
+	        // 第一次请求过来 获取地址栏中的t参数
+	        // window.location可以拿到当前网页中跟地址相关的信息
+	        var search = window.location.search; // ?t=jkaljdksfla
+	        // 如果地址栏中的地址有中文，会以URL编码方式呈现
+	        // decodeURI 可以转换到之前中文
+	        var title = search.split('=')[1]; // ['?t','jkaljdksfla']
+	        if (title) {
+	          // 有值 decodeURI作用就是从URL编码转换到之前的状态
+	          console.log(decodeURI(title));
+	          content.innerHTML = data[decodeURI(title)];
+	        }		
+		
+	</script>
+</body>
+
+</html>
